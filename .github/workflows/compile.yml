@@ -1,0 +1,53 @@
+name: Compile MCP Server
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Cache Deno dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/deno
+          key: deno-${{ runner.os }}-${{ hashFiles('deno.lock') }}
+          restore-keys: deno-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: deno install
+
+      - name: Copy Pyodide assets
+        run: |
+          PYODIDE_DIR=$(find ~/.cache/deno/npm/registry.npmjs.org/pyodide -maxdepth 1 -mindepth 1 -type d | head -1)
+          echo "Found Pyodide at: $PYODIDE_DIR"
+          mkdir -p pyodide-assets
+          cp "$PYODIDE_DIR/pyodide.asm.wasm" pyodide-assets/
+          cp "$PYODIDE_DIR/pyodide.asm.js" pyodide-assets/
+          cp "$PYODIDE_DIR/python_stdlib.zip" pyodide-assets/
+          cp "$PYODIDE_DIR/pyodide-lock.json" pyodide-assets/
+          cp "$PYODIDE_DIR"/*.whl pyodide-assets/
+          ls -lh pyodide-assets/
+
+      - name: Compile binary
+        run: >
+          deno compile
+          --include ./pyodide-assets
+          --allow-read --allow-write --allow-net --allow-env --allow-ffi
+          --output python-sbx
+          main.ts
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-sbx-linux-x86_64
+          path: python-sbx

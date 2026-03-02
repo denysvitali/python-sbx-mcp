@@ -1,0 +1,10 @@
+{
+  "imports": {
+    "@modelcontextprotocol/sdk": "npm:@modelcontextprotocol/sdk@^1.26.0",
+    "zod": "npm:zod@^3.25.0",
+    "pyodide": "npm:pyodide"
+  },
+  "tasks": {
+    "start": "deno run --allow-read --allow-write --allow-net --allow-env --allow-ffi main.ts"
+  }
+}
