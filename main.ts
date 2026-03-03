@@ -21,6 +21,7 @@ try {
       : entry.name;
     Deno.copyFileSync(assetsDir + entry.name, tmpDir + "/" + destName);
   }
+  Deno.writeTextFileSync(tmpDir + "/package.json", '{"type":"commonjs"}');
   indexURL = tmpDir + "/";
   console.error("Using embedded Pyodide assets from", tmpDir);
 } catch {
