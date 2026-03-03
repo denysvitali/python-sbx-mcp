@@ -35,7 +35,7 @@ jobs:
           cp "$PYODIDE_DIR/pyodide.asm.js" pyodide-assets/
           cp "$PYODIDE_DIR/python_stdlib.zip" pyodide-assets/
           cp "$PYODIDE_DIR/pyodide-lock.json" pyodide-assets/
-          cp "$PYODIDE_DIR"/*.whl pyodide-assets/
+          cp "$PYODIDE_DIR"/*.whl pyodide-assets/ 2>/dev/null || true
           ls -lh pyodide-assets/
 
       - name: Compile binary
