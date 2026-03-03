@@ -48,6 +48,7 @@ jobs:
         run: >
           deno compile
           --no-check
+          --unstable-detect-cjs
           --include ./pyodide-assets
           --allow-read --allow-write --allow-net --allow-env --allow-ffi
           --output python-sbx
