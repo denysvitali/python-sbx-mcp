@@ -1,10 +1,29 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { createRequire } from "node:module";
 import { z } from "zod";
 import pyodideModule from "pyodide/pyodide.js";
 
 // --- Load Pyodide (one-time, before MCP connects) ---
 console.error("Loading Pyodide...");
+
+function ensurePyodideCommonJsCompat(indexURL?: string) {
+  const globals = globalThis as typeof globalThis & {
+    __dirname?: string;
+    __filename?: string;
+  };
+  const withRequire = globalThis as { require?: unknown };
+
+  if (typeof withRequire.require !== "function") {
+    withRequire.require = createRequire(import.meta.url);
+  }
+
+  if (indexURL) {
+    const dir = indexURL.endsWith("/") ? indexURL.slice(0, -1) : indexURL;
+    globals.__dirname = dir;
+    globals.__filename = `${dir}/pyodide.asm.js`;
+  }
+}
 
 // Detect embedded assets (compiled binary) vs dev mode (npm cache).
 // During compilation, .wasm is renamed to .wasm.bin so Deno doesn't try to
@@ -27,6 +46,8 @@ try {
 } catch {
   // Dev mode — let Pyodide resolve from npm cache
 }
+
+ensurePyodideCommonJsCompat(indexURL);
 
 const pyodide = await pyodideModule.loadPyodide({
   ...(indexURL && { indexURL }),
