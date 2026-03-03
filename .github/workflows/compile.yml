@@ -36,6 +36,8 @@ jobs:
           cp "$PYODIDE_DIR/python_stdlib.zip" pyodide-assets/
           cp "$PYODIDE_DIR/pyodide-lock.json" pyodide-assets/
           cp "$PYODIDE_DIR"/*.whl pyodide-assets/ 2>/dev/null || true
+          # Rename .wasm so deno compile doesn't try to resolve it as a WASM module
+          mv pyodide-assets/pyodide.asm.wasm pyodide-assets/pyodide.asm.wasm.bin
           ls -lh pyodide-assets/
 
       - name: Compile binary
