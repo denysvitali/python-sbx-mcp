@@ -41,6 +41,7 @@ jobs:
       - name: Compile binary
         run: >
           deno compile
+          --no-check
           --include ./pyodide-assets
           --allow-read --allow-write --allow-net --allow-env --allow-ffi
           --output python-sbx
